@@ -1,11 +1,12 @@
 module Main exposing (Model, Msg(..), init, initialModel, main, subscriptions, update, view)
 
 import Browser
-import Configuration exposing (Configuration)
-import Element exposing (Element, centerX, column, fill, height, layout, maximum, padding, px, row, spaceEvenly, spacing, width, wrappedRow)
+import Configuration exposing (Configuration, cardsWidth, expectedCards, levelOptions)
+import Element exposing (Element, centerX, column, layout, padding, px, row, spaceEvenly, spacing, text, width, wrappedRow)
+import Element.Border as Border
 import Element.Input as Input
 import Html exposing (Html)
-import Image exposing (Image, Status(..), buildCodes, buildImages, distinct, randomGenerator, render, url)
+import Image exposing (Image, Status(..), buildImages, distinct, duplicateCodes, progressRendering, randomGenerator, render)
 import Random
 import Random.List exposing (shuffle)
 
@@ -43,8 +44,8 @@ init _ =
 type Msg
     = Init
     | SelectLevel Int
-    | LoadedRandomId (List Int)
     | ShuffleCodes (List Int)
+    | LoadedRandomId (List Int)
     | Click Image
 
 
@@ -58,6 +59,7 @@ update message model =
         Init ->
             ( model, generateCodes )
 
+        -- Selecting a level should update configuration and generate new images
         SelectLevel selectedLevel ->
             let
                 configuration : Configuration
@@ -68,41 +70,39 @@ update message model =
             , generateCodes
             )
 
-        LoadedRandomId codes ->
-            ( { model
-                | images = codes |> buildImages
-              }
-            , Cmd.none
-            )
-
-        ShuffleCodes newCodes ->
+        -- From the generated codes, aggregate to build the images codes
+        ShuffleCodes randomCodes ->
             let
                 configuration : Configuration
                 configuration =
                     model.configuration
 
-                cards : Int
-                cards =
-                    configuration.level * configuration.cardsByLevel
+                expectedNumberOfCards : Int
+                expectedNumberOfCards =
+                    expectedCards configuration
 
                 distinctCodes : List Int
                 distinctCodes =
                     configuration.codes
-                        |> List.append newCodes
+                        |> List.append randomCodes
                         |> distinct
-                        |> List.take cards
+                        |> List.take expectedNumberOfCards
             in
             ( { model | configuration = { configuration | codes = distinctCodes } }
-            , case (distinctCodes |> List.length) < cards of
+            , case (distinctCodes |> List.length) < expectedNumberOfCards of
                 True ->
-                    10 |> randomGenerator 1 1000 |> Random.generate ShuffleCodes
+                    generateCodes
 
                 False ->
                     distinctCodes
-                        |> buildCodes
+                        |> duplicateCodes
                         |> shuffle
                         |> Random.generate LoadedRandomId
             )
+
+        -- From the random generated codes, we build a list of images
+        LoadedRandomId codes ->
+            ( { model | images = codes |> buildImages }, Cmd.none )
 
         Click clickedImage ->
             let
@@ -188,7 +188,7 @@ update message model =
 generateCodes : Cmd Msg
 generateCodes =
     10
-        |> randomGenerator 1 1000
+        |> randomGenerator 1 100
         |> Random.generate ShuffleCodes
 
 
@@ -208,16 +208,22 @@ subscriptions _ =
 view : Model -> Html Msg
 view model =
     let
-        cardsWidth : Int
-        cardsWidth =
-            model.configuration.cardsByLevel * 205
-
         images : Element Msg
         images =
             model.images
                 |> List.map
                     (\image ->
-                        { onPress = Just (Click image)
+                        let
+                            action : Maybe Msg
+                            action =
+                                case image.status of
+                                    Hidden ->
+                                        Just (Click image)
+
+                                    _ ->
+                                        Nothing
+                        in
+                        { onPress = action
                         , label = render image
                         }
                             |> Input.button []
@@ -225,58 +231,52 @@ view model =
                 |> wrappedRow
                     [ spacing 5
                     , spaceEvenly
-                    , width (px cardsWidth)
+                    , model.configuration |> cardsWidth |> px |> width
                     ]
 
         screen : Element Msg
         screen =
-            [ images ]
+            [ progressRendering model.images
+            , images
+            ]
                 |> column
-                    [ centerX ]
-
-        generateButton =
-            { onPress = Just Init
-            , label = Element.text "Init"
-            }
-                |> Input.button
                     [ padding 10
                     , spacing 10
                     ]
 
-        levelOptions : List (Input.Option Int msg)
-        levelOptions =
-            [ 1, 2, 3, 4, 5 ]
-                |> List.map
-                    (\level ->
-                        level
-                            |> String.fromInt
-                            |> Element.text
-                            |> Input.option level
-                    )
+        initButton =
+            { onPress = Just Init
+            , label = text "Restart"
+            }
+                |> Input.button
+                    [ padding 10
+                    , spacing 20
+                    , Border.width 1
+                    ]
 
-        selector : Element Msg
-        selector =
+        levelSelector : Element Msg
+        levelSelector =
             { onChange = SelectLevel
             , selected = Just model.configuration.level
             , label =
-                "Select level"
-                    |> Element.text
+                "Level"
+                    |> text
                     |> Input.labelAbove []
             , options = levelOptions
             }
                 |> Input.radio
-                    [ padding 5
-                    , spacing 5
+                    [ padding 10
+                    , spacing 10
                     ]
 
         configurationSideBar : Element Msg
         configurationSideBar =
-            [ generateButton ]
-                |> List.append [ selector ]
+            [ initButton ]
+                |> List.append [ levelSelector ]
                 |> column
-                    [ width (px 150)
-                    , centerX
+                    [ centerX
                     , Element.alignTop
+                    , padding 20
                     ]
     in
     [ configurationSideBar, screen ]
