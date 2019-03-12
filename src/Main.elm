@@ -1,9 +1,9 @@
 module Main exposing (Model, Msg(..), initialModel, main, update, view)
 
 import Browser
-import Html as Input exposing (Attribute, Html, div, img, text)
-import Html.Attributes exposing (src, style)
-import Html.Events exposing (onClick)
+import Element exposing (Element, padding, px, spacing, text)
+import Element.Input as Input
+import Html exposing (Html)
 import Random
 import String exposing (fromInt)
 
@@ -26,17 +26,17 @@ initialModel _ =
 
 
 type Msg
-    = Roll
-    | Rolled Int
+    = Generate
+    | Generated Int
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Roll ->
+        Generate ->
             ( model, generateValue )
 
-        Rolled randomValue ->
+        Generated randomValue ->
             ( { value = randomValue }, Cmd.none )
 
 
@@ -49,25 +49,43 @@ generate : Int -> Int -> Cmd Msg
 generate min max =
     max
         |> Random.int min
-        |> Random.generate Rolled
+        |> Random.generate Generated
 
 
 
 -- VIEW
 
 
-view : Model -> Html Msg
-view { value } =
+renderImage : Int -> Element Msg
+renderImage imageId =
     let
         imageUrl : String
         imageUrl =
-            (value |> fromInt)
+            (imageId |> fromInt)
                 |> String.append "https://picsum.photos/200/200?image="
     in
-    [ img [ src imageUrl ] []
-    , Input.button [ onClick Roll, style "margin" "5px" ] [ text "Generate" ]
-    ]
-        |> div []
+    { src = imageUrl
+    , description = "Randomly generated image"
+    }
+        |> Element.image [ Element.width (px 100) ]
+
+
+view : Model -> Html Msg
+view { value } =
+    let
+        button : Element Msg
+        button =
+            { onPress = Just Generate
+            , label = text "Generate"
+            }
+                |> Input.button []
+    in
+    [ value |> renderImage, button ]
+        |> Element.row
+            [ spacing 10
+            , padding 10
+            ]
+        |> Element.layout []
 
 
 

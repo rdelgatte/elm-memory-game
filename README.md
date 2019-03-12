@@ -51,7 +51,7 @@ div => Element.row | Element.column | Element.el
 ```elm
 button : Element Msg
 button =
-    { onPress = Just Roll
+    { onPress = Just Generate
     , label = text "Generate"
     }
         |> Input.button []
@@ -60,3 +60,12 @@ button =
 - Use `Element.layout` to transform `Element` to `Html Msg`
 
 You can now arrange your elements easily (without a single line of CSS).
+
+- Bonus: Create a function which takes an Int (image id) and returns the image:
+
+```elm
+renderImage : Int -> Element Msg
+renderImage imageId = ...
+```
+
+Once it is done, you can go to the next step: `git checkout -f step-3`
