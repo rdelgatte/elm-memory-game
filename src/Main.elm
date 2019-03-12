@@ -1,8 +1,8 @@
 module Main exposing (Model, Msg(..), initialModel, main, update, view)
 
 import Browser
-import Html as Input exposing (Attribute, Html, div, text)
-import Html.Attributes exposing (style)
+import Html as Input exposing (Attribute, Html, div, img, text)
+import Html.Attributes exposing (src, style)
 import Html.Events exposing (onClick)
 import Random
 import String exposing (fromInt)
@@ -26,17 +26,17 @@ initialModel _ =
 
 
 type Msg
-    = Roll
-    | Rolled Int
+    = Generate
+    | Generated Int
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Roll ->
+        Generate ->
             ( model, generateValue )
 
-        Rolled randomValue ->
+        Generated randomValue ->
             ( { value = randomValue }, Cmd.none )
 
 
@@ -49,7 +49,7 @@ generate : Int -> Int -> Cmd Msg
 generate min max =
     max
         |> Random.int min
-        |> Random.generate Rolled
+        |> Random.generate Generated
 
 
 
@@ -57,18 +57,15 @@ generate min max =
 
 
 view : Model -> Html Msg
-view model =
+view { value } =
     let
-        diceValue : Html Msg
-        diceValue =
-            (model.value
-                |> fromInt
-            )
-                |> String.append "Value = "
-                |> text
+        imageUrl : String
+        imageUrl =
+            (value |> fromInt)
+                |> String.append "https://picsum.photos/200/200?image="
     in
-    [ diceValue
-    , Input.button [ onClick Roll, style "margin" "5px" ] [ text "Generate" ]
+    [ img [ src imageUrl ] []
+    , Input.button [ onClick Generate, style "margin" "5px" ] [ text "Generate" ]
     ]
         |> div []
 
