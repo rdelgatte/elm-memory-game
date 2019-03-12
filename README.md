@@ -102,3 +102,30 @@ images =
 ```
 
 Once it is done, you can go to the next step: `git checkout -f step-4`
+
+### Step-4: Image model
+
+Images can have multiple states in a memory game: 
+- *Hidden* = reverse side of the card (initial state) 
+- *Visible* = when user click on it to discover the image
+- *Found* = when user found associated images
+
+We need to explicitly define a `Image` type to handle images in the application.
+
+- Create a new Elm file `Image.elm` which defines a new `type alias` for `Image` with following attributes:
+    - `id`: `Int`
+    - `description`: `String`
+    - `status`: `Status`
+
+You also need to create a `Status` type to highlight the three status we highlighted before.
+
+- Instead of generating an `Element.image` from the generated Id, we will now build an `Image` from a provided id using a build function like:
+```elm
+buildImage: Int -> Image
+buildImage id = ...
+```
+You can set the default status of the Image to `Hidden` for now.
+
+- Transform function `renderImage` to get an `Image` and return a `Element Msg` as before
+
+Once it is done, you can go to the next step: `git checkout -f step-5`
