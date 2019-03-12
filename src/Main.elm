@@ -1,9 +1,9 @@
 module Main exposing (Model, Msg(..), initialModel, main, update, view)
 
 import Browser
-import Html as Input exposing (Attribute, Html, div, img, text)
-import Html.Attributes exposing (src, style)
-import Html.Events exposing (onClick)
+import Element exposing (Element, padding, px, spacing, text)
+import Element.Input as Input
+import Html exposing (Html)
 import Random
 import String exposing (fromInt)
 
@@ -63,11 +63,27 @@ view { value } =
         imageUrl =
             (value |> fromInt)
                 |> String.append "https://picsum.photos/200/200?image="
+
+        image : Element Msg
+        image =
+            { src = imageUrl
+            , description = "Randomly generated image"
+            }
+                |> Element.image [ Element.width (px 100) ]
+
+        button : Element Msg
+        button =
+            { onPress = Just Roll
+            , label = text "Generate"
+            }
+                |> Input.button []
     in
-    [ img [ src imageUrl ] []
-    , Input.button [ onClick Roll, style "margin" "5px" ] [ text "Generate" ]
-    ]
-        |> div []
+    [ image, button ]
+        |> Element.row
+            [ spacing 10
+            , padding 10
+            ]
+        |> Element.layout []
 
 
 
