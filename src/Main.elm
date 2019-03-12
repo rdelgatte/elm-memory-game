@@ -1,8 +1,8 @@
 module Main exposing (Model, Msg(..), initialModel, main, update, view)
 
 import Browser
-import Html as Input exposing (Attribute, Html, div, text)
-import Html.Attributes exposing (style)
+import Html as Input exposing (Attribute, Html, div, img, text)
+import Html.Attributes exposing (src, style)
 import Html.Events exposing (onClick)
 import Random
 import String exposing (fromInt)
@@ -57,17 +57,14 @@ generate min max =
 
 
 view : Model -> Html Msg
-view model =
+view { value } =
     let
-        diceValue : Html Msg
-        diceValue =
-            (model.value
-                |> fromInt
-            )
-                |> String.append "Value = "
-                |> text
+        imageUrl : String
+        imageUrl =
+            (value |> fromInt)
+                |> String.append "https://picsum.photos/200/200?image="
     in
-    [ diceValue
+    [ img [ src imageUrl ] []
     , Input.button [ onClick Roll, style "margin" "5px" ] [ text "Generate" ]
     ]
         |> div []
