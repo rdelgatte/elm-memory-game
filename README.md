@@ -51,7 +51,7 @@ div => Element.row | Element.column | Element.el
 ```elm
 button : Element Msg
 button =
-    { onPress = Just Roll
+    { onPress = Just Generate
     , label = text "Generate"
     }
         |> Input.button []
@@ -60,3 +60,45 @@ button =
 - Use `Element.layout` to transform `Element` to `Html Msg`
 
 You can now arrange your elements easily (without a single line of CSS).
+
+- Bonus: Create a function which takes an Int (image id) and returns the image:
+
+```elm
+renderImage : Int -> Element Msg
+renderImage imageId = ...
+```
+
+Once it is done, you can go to the next step: `git checkout -f step-3`
+
+### Step-3: Generate multiple images 
+
+In this step, we need to change the `Model` so we can have a list of multiple values and then render the images as expected
+
+- Change `Model` to get `values: List Int`
+- Check your compiler for the next steps :-) 
+
+You can generate 5 random images for this example
+
+![step-3](doc/step-3.png)
+
+--- 
+**Few tips** 
+- We need to change the function to generate a `List` of `Int`. You can use: 
+```elm
+generate : Int -> Int -> Cmd Msg
+generate min max =
+    max
+        |> Random.int min
+        |> Random.list 5
+        |> Random.generate Generated
+```
+- The result of `Generated` should change accordingly
+- You can transform the list of generated image ids to images using:
+```elm
+images : List (Element Msg)
+images =
+    values
+        |> List.map (\imageId -> imageId |> renderImage)
+```
+
+Once it is done, you can go to the next step: `git checkout -f step-4`

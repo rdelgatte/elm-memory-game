@@ -13,12 +13,12 @@ import String exposing (fromInt)
 
 
 type alias Model =
-    { value : Int }
+    { values : List Int }
 
 
 initialModel : () -> ( Model, Cmd Msg )
 initialModel _ =
-    ( { value = 0 }, generateValue )
+    ( { values = [] }, generateValue )
 
 
 
@@ -26,18 +26,18 @@ initialModel _ =
 
 
 type Msg
-    = Roll
-    | Rolled Int
+    = GenerateValues
+    | Generated (List Int)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Roll ->
+        GenerateValues ->
             ( model, generateValue )
 
-        Rolled randomValue ->
-            ( { value = randomValue }, Cmd.none )
+        Generated randomValues ->
+            ( { values = randomValues }, Cmd.none )
 
 
 generateValue : Cmd Msg
@@ -49,36 +49,45 @@ generate : Int -> Int -> Cmd Msg
 generate min max =
     max
         |> Random.int min
-        |> Random.generate Rolled
+        |> Random.list 5
+        |> Random.generate Generated
 
 
 
 -- VIEW
 
 
-view : Model -> Html Msg
-view { value } =
+renderImage : Int -> Element Msg
+renderImage imageId =
     let
         imageUrl : String
         imageUrl =
-            (value |> fromInt)
+            (imageId |> fromInt)
                 |> String.append "https://picsum.photos/200/200?image="
+    in
+    { src = imageUrl
+    , description = "Randomly generated image"
+    }
+        |> Element.image [ Element.width (px 100) ]
 
-        image : Element Msg
-        image =
-            { src = imageUrl
-            , description = "Randomly generated image"
-            }
-                |> Element.image [ Element.width (px 100) ]
 
+view : Model -> Html Msg
+view { values } =
+    let
         button : Element Msg
         button =
-            { onPress = Just Roll
+            { onPress = Just GenerateValues
             , label = text "Generate"
             }
                 |> Input.button []
+
+        images : List (Element Msg)
+        images =
+            values
+                |> List.map (\imageId -> imageId |> renderImage)
     in
-    [ image, button ]
+    [ button ]
+        |> List.append images
         |> Element.row
             [ spacing 10
             , padding 10
