@@ -16,7 +16,7 @@ THE RULES FOR PLAYING "MEMORY"
 
 ### Step-0: Start the application
 
-Checkout branch `step-0` and run `elm-live src/Main.elm --port=1234 --open  -- --debug`
+Checkout branch `step-0` and run `elm-live src/Main.elm --port=1234 --open  -- --output=main.js --debug`
 
 In this branch, you will find a single button and a value which is randomly generated (from 1 to 100).
 
