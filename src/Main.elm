@@ -26,17 +26,17 @@ initialModel _ =
 
 
 type Msg
-    = Roll
-    | Rolled Int
+    = Generate
+    | Generated Int
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Roll ->
+        Generate ->
             ( model, generateValue )
 
-        Rolled randomValue ->
+        Generated randomValue ->
             ( { value = randomValue }, Cmd.none )
 
 
@@ -49,7 +49,7 @@ generate : Int -> Int -> Cmd Msg
 generate min max =
     max
         |> Random.int min
-        |> Random.generate Rolled
+        |> Random.generate Generated
 
 
 
@@ -65,7 +65,7 @@ view { value } =
                 |> String.append "https://picsum.photos/200/200?image="
     in
     [ img [ src imageUrl ] []
-    , Input.button [ onClick Roll, style "margin" "5px" ] [ text "Generate" ]
+    , Input.button [ onClick Generate, style "margin" "5px" ] [ text "Generate" ]
     ]
         |> div []
 
