@@ -4,6 +4,7 @@ import Browser
 import Element exposing (Element, padding, px, spacing, text)
 import Element.Input as Input
 import Html exposing (Html)
+import Image exposing (Image)
 import Random
 import String exposing (fromInt)
 
@@ -57,16 +58,16 @@ generate min max =
 -- VIEW
 
 
-renderImage : Int -> Element Msg
-renderImage imageId =
+renderImage : Image -> Element Msg
+renderImage { id, description } =
     let
         imageUrl : String
         imageUrl =
-            (imageId |> fromInt)
+            (id |> fromInt)
                 |> String.append "https://picsum.photos/200/200?image="
     in
     { src = imageUrl
-    , description = "Randomly generated image"
+    , description = description
     }
         |> Element.image [ Element.width (px 100) ]
 
@@ -84,7 +85,8 @@ view { values } =
         images : List (Element Msg)
         images =
             values
-                |> List.map (\imageId -> imageId |> renderImage)
+                |> List.map (\imageId -> imageId |> Image.buildImage)
+                |> List.map (\image -> image |> renderImage)
     in
     [ button ]
         |> List.append images
