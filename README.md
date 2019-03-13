@@ -160,3 +160,29 @@ This way, you should see the message when no images are loaded.
 - `view` also needs to handle the case where `values = Nothing` to show something like `Loading...`
 
 Once it is done, you can go to the next step: `git checkout -f step-6`
+
+### Step-6: Handling images status
+
+As described in [step-4](#step-4-image-model) we defined three `Status` for our images but we now need to use them so the image rendering depend on them.
+
+When image status is `Hidden`, we should render `card.png` which is:
+![card](doc/card.png)
+
+Otherwise, we should render the image as it is
+
+- Rework function `renderImage` so you return the right image according to image state 
+```elm
+renderImage : Image -> Element Msg
+```
+You should see all images as `card.png` because the default `status` is set to `Hidden`:
+
+![step-6](doc/step-6.png)
+
+- Change default status of Image (in `buildImage`) to `Visible` and validate you get the former behaviour.
+
+--- 
+**Tip** 
+
+You need to expose `Image.Status` in `Image.elm` file so you can use it in `Main.elm`
+
+Once it is done, you can go to the next step: `git checkout -f step-7`
