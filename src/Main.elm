@@ -29,6 +29,7 @@ initialModel _ =
 type Msg
     = GenerateValues
     | Generated (List Int)
+    | Click Image
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -39,6 +40,35 @@ update msg model =
 
         Generated randomValues ->
             ( { maybeImages = Just (randomValues |> List.map (\id -> id |> buildImage)) }, Cmd.none )
+
+        Click clickedImage ->
+            ( { model | maybeImages = clickedImage |> updateImagesOnClick model.maybeImages }, Cmd.none )
+
+
+updateImagesOnClick : Maybe (List Image) -> Image -> Maybe (List Image)
+updateImagesOnClick maybeImages { id } =
+    case maybeImages of
+        Nothing ->
+            Nothing
+
+        Just images ->
+            Just
+                (images
+                    |> List.map
+                        (\image ->
+                            case image.id == id of
+                                False ->
+                                    image
+
+                                True ->
+                                    visible image
+                        )
+                )
+
+
+visible : Image -> Image
+visible image =
+    { image | status = Visible }
 
 
 generateValues : Cmd Msg
@@ -77,6 +107,20 @@ renderImage { id, description, status } =
         |> Element.image [ Element.width (px 100) ]
 
 
+renderClickableImage : Image -> Element Msg
+renderClickableImage image =
+    { onPress =
+        case image.status of
+            Hidden ->
+                Just (Click image)
+
+            _ ->
+                Nothing
+    , label = renderImage image
+    }
+        |> Input.button []
+
+
 view : Model -> Html Msg
 view { maybeImages } =
     let
@@ -100,7 +144,7 @@ view { maybeImages } =
 
         Just images ->
             [ button ]
-                |> List.append (images |> List.map (\image -> image |> renderImage))
+                |> List.append (images |> List.map (\image -> image |> renderClickableImage))
                 |> Element.row
                     [ spacing 10
                     , padding 10
