@@ -231,3 +231,32 @@ images
 ```
 
 Once it is done, you can go to the next step: `git checkout -f step-8`
+
+### Step-8: Generate a first batch of unique cards
+
+In the previous steps, we generated random images without regarding whether there were duplicated image id for example.
+
+In this step, we will focus on generating 10 unique images. We don't know yet what numbers will be produced by the `generate` function (= random) so we may generate 10 numbers but with some duplicates.
+
+So here, we will:
+- Generate 10 numbers: update the `generate` function to return a list of 10 numbers
+- Filter these 10 numbers to make sure there is no duplicates
+    - If none are duplicated, we generate the images as before
+    - Else, we re-roll until we get a list of unique numbers
+- Bonus: Set the `length` of images we want to generate in the `Model` so we can quickly change the number of cards we want.
+
+In the end, you should see:
+![step-8](doc/step-8.png)
+
+In the above picture, you can notice we needed 5 rolls before having 10 unique numbers (it's not really nice, but it's just for the exercise).
+
+--- 
+**Few tips** 
+- To get a simple way to do a distinct of a list, as they are only `Int` values, you can transform the `List` to a `Set` and evaluates whether their length match:
+```elm
+distinctListSize: Int
+distinctListSize = randomValues |> Set.fromList |> Set.size
+```
+- When there are duplicated data, `Generated` returns `( model, generateValues model )` so it does not change the model but replay the `generate` function.
+
+Once it is done, you can go to the next step: `git checkout -f step-9`
