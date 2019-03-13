@@ -6,6 +6,7 @@ import Element.Input as Input
 import Html exposing (Html)
 import Image exposing (Image, Status(..), buildImage)
 import Random
+import Set
 import String exposing (fromInt)
 
 
@@ -14,12 +15,21 @@ import String exposing (fromInt)
 
 
 type alias Model =
-    { maybeImages : Maybe (List Image) }
+    { maybeImages : Maybe (List Image)
+    , length : Int
+    }
 
 
 initialModel : () -> ( Model, Cmd Msg )
 initialModel _ =
-    ( { maybeImages = Nothing }, generateValues )
+    let
+        initModel : Model
+        initModel =
+            { maybeImages = Nothing
+            , length = 10
+            }
+    in
+    ( initModel, generateValues initModel )
 
 
 
@@ -36,10 +46,15 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         GenerateValues ->
-            ( model, generateValues )
+            ( model, generateValues model )
 
         Generated randomValues ->
-            ( { maybeImages = Just (randomValues |> List.map (\id -> id |> buildImage)) }, Cmd.none )
+            case (randomValues |> Set.fromList |> Set.size) == model.length of
+                True ->
+                    ( { model | maybeImages = Just (randomValues |> List.map (\id -> id |> buildImage)) }, Cmd.none )
+
+                False ->
+                    ( model, generateValues model )
 
         Click clickedImage ->
             ( { model | maybeImages = clickedImage |> updateImagesOnClick model.maybeImages }, Cmd.none )
@@ -71,16 +86,16 @@ visible image =
     { image | status = Visible }
 
 
-generateValues : Cmd Msg
-generateValues =
-    generate 1 100
+generateValues : Model -> Cmd Msg
+generateValues { length } =
+    generate 1 100 length
 
 
-generate : Int -> Int -> Cmd Msg
-generate min max =
+generate : Int -> Int -> Int -> Cmd Msg
+generate min max length =
     max
         |> Random.int min
-        |> Random.list 5
+        |> Random.list length
         |> Random.generate Generated
 
 
