@@ -1,4 +1,4 @@
-module Image exposing (Image, buildImage)
+module Image exposing (Image, Status(..), buildImage)
 
 
 type alias Image =

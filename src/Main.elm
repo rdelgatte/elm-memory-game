@@ -4,7 +4,7 @@ import Browser
 import Element exposing (Element, padding, px, spacing, text)
 import Element.Input as Input
 import Html exposing (Html)
-import Image exposing (Image, buildImage)
+import Image exposing (Image, Status(..), buildImage)
 import Random
 import String exposing (fromInt)
 
@@ -59,12 +59,17 @@ generate min max =
 
 
 renderImage : Image -> Element Msg
-renderImage { id, description } =
+renderImage { id, description, status } =
     let
         imageUrl : String
         imageUrl =
-            (id |> fromInt)
-                |> String.append "https://picsum.photos/200/200?image="
+            case status of
+                Hidden ->
+                    "doc/card.png"
+
+                _ ->
+                    (id |> fromInt)
+                        |> String.append "https://picsum.photos/200/200?image="
     in
     { src = imageUrl
     , description = description
