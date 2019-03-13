@@ -4,7 +4,7 @@ import Browser
 import Element exposing (Element, padding, px, spacing, text)
 import Element.Input as Input
 import Html exposing (Html)
-import Image exposing (Image)
+import Image exposing (Image, buildImage)
 import Random
 import String exposing (fromInt)
 
@@ -14,12 +14,12 @@ import String exposing (fromInt)
 
 
 type alias Model =
-    { values : List Int }
+    { maybeImages : Maybe (List Image) }
 
 
 initialModel : () -> ( Model, Cmd Msg )
 initialModel _ =
-    ( { values = [] }, generateValue )
+    ( { maybeImages = Nothing }, generateValues )
 
 
 
@@ -35,14 +35,14 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         GenerateValues ->
-            ( model, generateValue )
+            ( model, generateValues )
 
         Generated randomValues ->
-            ( { values = randomValues }, Cmd.none )
+            ( { maybeImages = Just (randomValues |> List.map (\id -> id |> buildImage)) }, Cmd.none )
 
 
-generateValue : Cmd Msg
-generateValue =
+generateValues : Cmd Msg
+generateValues =
     generate 1 100
 
 
@@ -73,7 +73,7 @@ renderImage { id, description } =
 
 
 view : Model -> Html Msg
-view { values } =
+view { maybeImages } =
     let
         button : Element Msg
         button =
@@ -81,20 +81,26 @@ view { values } =
             , label = text "Generate"
             }
                 |> Input.button []
-
-        images : List (Element Msg)
-        images =
-            values
-                |> List.map (\imageId -> imageId |> Image.buildImage)
-                |> List.map (\image -> image |> renderImage)
     in
-    [ button ]
-        |> List.append images
-        |> Element.row
-            [ spacing 10
-            , padding 10
+    case maybeImages of
+        Nothing ->
+            [ text "No images were loaded"
+            , button
             ]
-        |> Element.layout []
+                |> Element.row
+                    [ spacing 10
+                    , padding 10
+                    ]
+                |> Element.layout []
+
+        Just images ->
+            [ button ]
+                |> List.append (images |> List.map (\image -> image |> renderImage))
+                |> Element.row
+                    [ spacing 10
+                    , padding 10
+                    ]
+                |> Element.layout []
 
 
 
