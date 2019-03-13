@@ -186,3 +186,48 @@ You should see all images as `card.png` because the default `status` is set to `
 You need to expose `Image.Status` in `Image.elm` file so you can use it in `Main.elm`
 
 Once it is done, you can go to the next step: `git checkout -f step-7`
+
+### Step-7: OnClick to change the image status
+
+Now we get our cards reversed, we would like to show them when clicking on it.
+
+To do so, the only thing to do is to switch the status of the image we've just clicked to `Visible`.
+
+- Create a new `Msg` which is `Click` and takes an `Image` as a parameter
+- Inline your `Element.Image` within an `Input.button` (use `Element.Input`) and call the previously created `Msg`
+- Implement the `Click` Msg to update the image status from the list of `Image` in the `Model`
+
+You should get something like this in the end: 
+
+![step-7](doc/step-7.png)
+
+- Bonus: When the image is already rendered, it should not be clickable anymore.
+
+--- 
+**Few tips** 
+- Here is the `Input.button` signature (from elm-ui):
+```elm
+button :
+    List (Attribute msg)
+    ->
+        { onPress : Maybe msg
+        , label : Element msg
+        }
+    -> Element msg
+```
+So our `label` here can be the `Element.Image` we dealt with before.
+- Updating the list of images can be done using `List.map` filtering on the one you clicked to update its status  
+```elm
+images
+    |> List.map
+        (\image ->
+            case image.id == id of
+                False ->
+                    image
+  
+                True ->
+                    { image | status = Visible }
+        )
+```
+
+Once it is done, you can go to the next step: `git checkout -f step-8`
