@@ -52,7 +52,7 @@ imageUrl : Image -> String
 imageUrl image =
     case image.status of
         Hidden ->
-            "card.jpg"
+            "card.png"
 
         _ ->
             image.url
