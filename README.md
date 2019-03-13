@@ -129,3 +129,34 @@ You can set the default status of the Image to `Hidden` for now.
 - Transform function `renderImage` to get an `Image` and return a `Element Msg` as before
 
 Once it is done, you can go to the next step: `git checkout -f step-5`
+
+### Step-5: Images in the Model
+
+You could notice that values in the Model are just a `List` of `Int` but it'd rather be better to get the list of `Image` instead.
+
+- Change `Model` to:
+```elm
+type alias Model =
+    { images : Maybe (List Image) }
+```
+- Refactor your code to get your compiler happy :-)
+- Following your best friend (= elm compiler) and documentation, you should be able to get your application up and running as before.
+
+As a result, when opening your elm debugger, you should now see:
+
+![step-5](doc/step-5.png)
+
+- Bonus: you can change the initial state of the application by not calling `generate` on load: 
+```elm
+initialModel : () -> ( Model, Cmd Msg )
+initialModel _ =
+    ( { maybeImages = Nothing }, Cmd.none )
+```
+This way, you should see the message when no images are loaded.
+
+--- 
+**Few tips** 
+- `Maybe` should be used so the initial state of our application has `Nothing` as `images` and will be updated with data when getting ramdom id.
+- `view` also needs to handle the case where `values = Nothing` to show something like `Loading...`
+
+Once it is done, you can go to the next step: `git checkout -f step-6`
