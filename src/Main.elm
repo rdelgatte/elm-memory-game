@@ -1,11 +1,12 @@
 module Main exposing (Model, Msg(..), initialModel, main, update, view)
 
 import Browser
-import Element exposing (Element, padding, px, spacing, text)
+import Element exposing (Element, centerX, padding, px, spacing, text, width)
 import Element.Input as Input
 import Html exposing (Html)
 import Image exposing (Image, Status(..), buildImage)
 import Random
+import Random.List
 import Set
 import String exposing (fromInt)
 
@@ -39,7 +40,16 @@ initialModel _ =
 type Msg
     = GenerateValues
     | Generated (List Int)
+    | DuplicatedAndMixed (List Int)
     | Click Image
+
+
+duplicateAndMixValues : List Int -> Cmd Msg
+duplicateAndMixValues values =
+    values
+        |> List.append values
+        |> Random.List.shuffle
+        |> Random.generate DuplicatedAndMixed
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -51,13 +61,16 @@ update msg model =
         Generated randomValues ->
             case (randomValues |> Set.fromList |> Set.size) == model.length of
                 True ->
-                    ( { model | maybeImages = Just (randomValues |> List.map (\id -> id |> buildImage)) }, Cmd.none )
+                    ( { model | maybeImages = Nothing }, randomValues |> duplicateAndMixValues )
 
                 False ->
                     ( model, generateValues model )
 
         Click clickedImage ->
             ( { model | maybeImages = clickedImage |> updateImagesOnClick model.maybeImages }, Cmd.none )
+
+        DuplicatedAndMixed mixedCodes ->
+            ( { model | maybeImages = Just (mixedCodes |> List.map (\id -> id |> buildImage)) }, Cmd.none )
 
 
 updateImagesOnClick : Maybe (List Image) -> Image -> Maybe (List Image)
@@ -114,12 +127,12 @@ renderImage { id, description, status } =
 
                 _ ->
                     (id |> fromInt)
-                        |> String.append "https://picsum.photos/200/200?image="
+                        |> String.append "https://picsum.photos/200/300?image="
     in
     { src = imageUrl
     , description = description
     }
-        |> Element.image [ Element.width (px 100) ]
+        |> Element.image [ width (px 100) ]
 
 
 renderClickableImage : Image -> Element Msg
@@ -160,9 +173,11 @@ view { maybeImages } =
         Just images ->
             [ button ]
                 |> List.append (images |> List.map (\image -> image |> renderClickableImage))
-                |> Element.row
+                |> Element.wrappedRow
                     [ spacing 10
                     , padding 10
+                    , width (px 600)
+                    , centerX
                     ]
                 |> Element.layout []
 
@@ -172,7 +187,7 @@ view { maybeImages } =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.none
 
 
