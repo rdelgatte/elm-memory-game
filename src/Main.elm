@@ -41,7 +41,7 @@ type Msg
     = GenerateValues
     | Generated (List Int)
     | DuplicatedAndMixed (List Int)
-    | Click Image
+    | Click Int
 
 
 duplicateAndMixValues : List Int -> Cmd Msg
@@ -66,15 +66,15 @@ update msg model =
                 False ->
                     ( model, generateValues model )
 
-        Click clickedImage ->
-            ( { model | maybeImages = clickedImage |> updateImagesOnClick model.maybeImages }, Cmd.none )
+        Click index ->
+            ( { model | maybeImages = index |> updateImagesOnClick model.maybeImages }, Cmd.none )
 
         DuplicatedAndMixed mixedCodes ->
             ( { model | maybeImages = Just (mixedCodes |> List.map (\id -> id |> buildImage)) }, Cmd.none )
 
 
-updateImagesOnClick : Maybe (List Image) -> Image -> Maybe (List Image)
-updateImagesOnClick maybeImages { id } =
+updateImagesOnClick : Maybe (List Image) -> Int -> Maybe (List Image)
+updateImagesOnClick maybeImages clickedIndex =
     case maybeImages of
         Nothing ->
             Nothing
@@ -82,9 +82,9 @@ updateImagesOnClick maybeImages { id } =
         Just images ->
             Just
                 (images
-                    |> List.map
-                        (\image ->
-                            case image.id == id of
+                    |> List.indexedMap
+                        (\index image ->
+                            case index == clickedIndex of
                                 False ->
                                     image
 
@@ -135,12 +135,12 @@ renderImage { id, description, status } =
         |> Element.image [ width (px 100) ]
 
 
-renderClickableImage : Image -> Element Msg
-renderClickableImage image =
+renderClickableImage : Image -> Int -> Element Msg
+renderClickableImage image index =
     { onPress =
         case image.status of
             Hidden ->
-                Just (Click image)
+                Just (Click index)
 
             _ ->
                 Nothing
@@ -172,7 +172,7 @@ view { maybeImages } =
 
         Just images ->
             [ button ]
-                |> List.append (images |> List.map (\image -> image |> renderClickableImage))
+                |> List.append (images |> List.indexedMap (\index image -> index |> renderClickableImage image))
                 |> Element.wrappedRow
                     [ spacing 10
                     , padding 10
