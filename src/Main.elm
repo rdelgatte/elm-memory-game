@@ -1,7 +1,7 @@
 module Main exposing (Model, Msg(..), initialModel, main, update, view)
 
 import Browser
-import Element exposing (Element, padding, px, spacing, text)
+import Element exposing (Element, centerX, padding, px, spacing, text, width)
 import Element.Input as Input
 import Html exposing (Html)
 import Image exposing (Image, Status(..), buildImage)
@@ -114,12 +114,12 @@ renderImage { id, description, status } =
 
                 _ ->
                     (id |> fromInt)
-                        |> String.append "https://picsum.photos/200/200?image="
+                        |> String.append "https://picsum.photos/200/300?image="
     in
     { src = imageUrl
     , description = description
     }
-        |> Element.image [ Element.width (px 100) ]
+        |> Element.image [ width (px 100) ]
 
 
 renderClickableImage : Image -> Element Msg
@@ -160,9 +160,11 @@ view { maybeImages } =
         Just images ->
             [ button ]
                 |> List.append (images |> List.map (\image -> image |> renderClickableImage))
-                |> Element.row
+                |> Element.wrappedRow
                     [ spacing 10
                     , padding 10
+                    , width (px 600)
+                    , centerX
                     ]
                 |> Element.layout []
 
@@ -172,7 +174,7 @@ view { maybeImages } =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.none
 
 
