@@ -279,3 +279,37 @@ What happens when you click over one image? Why?
 - To mix the codes, we can use `Random.List.shuffle` which returns a `Random.Generator` so a side effect to handle.
 
 Once it is done, you can go to the next step: `git checkout -f step-10`
+
+### Step-10: Use images list index 
+
+You could notice after previous step, when clicking over an image, both images (with the same id) were discovered.
+
+In this step, we are going to fix this by using the `List` index instead of the image id.
+
+- Change the `Msg` `Click Image` to `Click Int` so we get the index of the item being clicked
+- Refactor function `updateImagesOnClick` to get the index being clicked as a parameter so you update the image status for the item of the list with the provided index
+```elm
+updateImagesOnClick : Maybe (List Image) -> Int -> Maybe (List Image)
+``` 
+
+After doing this, you should be able to see: 
+![step-10](doc/step-10.png)
+
+--- 
+**Few tips**
+- To get the index of the item from the list, you can use `List.indexedMap`
+- To update the status of the right image (with provided index), you can do as following:
+```elm
+images
+    |> List.indexedMap
+        (\index image ->
+            case index == clickedIndex of
+                False ->
+                    image
+
+                True ->
+                    visible image
+        )
+```
+
+Once it is done, you can go to the next step: `git checkout -f step-11`
