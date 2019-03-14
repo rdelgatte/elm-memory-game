@@ -260,3 +260,22 @@ distinctListSize = randomValues |> Set.fromList |> Set.size
 - When there are duplicated data, `Generated` returns `( model, generateValues model )` so it does not change the model but replay the `generate` function.
 
 Once it is done, you can go to the next step: `git checkout -f step-9`
+
+### Step-9: Duplicate and mix images 
+
+So now, we have 10 unique images, we need to duplicate and mix them so we place them in a random order. 
+
+- Duplicate all images when building the list of `Image` in the `Model`
+- Mix all images 
+
+In the end, you should see:
+![step-9](doc/step-9.png)
+
+What happens when you click over one image? Why?
+
+--- 
+**Few tips**
+- Duplicating a list is the same as appending the same values twice.
+- To mix the codes, we can use `Random.List.shuffle` which returns a `Random.Generator` so a side effect to handle.
+
+Once it is done, you can go to the next step: `git checkout -f step-10`
