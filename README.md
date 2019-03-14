@@ -313,3 +313,48 @@ images
 ```
 
 Once it is done, you can go to the next step: `git checkout -f step-11`
+
+### Step-11: Tag images as found when duplicates are visible
+
+In this step, we will have to flag our images as `Found` whenever we discover a card which has is associated image visible as well.
+
+When clicking an `Image` it becomes `Visible`.
+
+- Create a function which takes the `Maybe (List Image)` and returns an up-to-date `Maybe (List Image)`:
+The signature could be something like:
+```elm
+refreshImagesStatus : Maybe (List Image) -> Maybe (List Image)
+```
+This function will go through images and will determine whether the image should be flagged as `Found` meaning there is already another `Visible` image with the same `Image.id` in the list of not.
+
+To help you, I wrote some unit tests so you can run them while coding the function. If the tests pass, you can go through the next step. 
+
+- Call the function at the right place (right after the clicked image status passed to `Visible`)
+
+- Check your debugger to validate the status of the images being changed to `Found` when expected
+
+I moved some helpful functions to build the `Element.image` passing an `Image` inside file `Image.elm`: 
+```elm
+imageUrl : Image -> String
+imageUrl { id, status } =
+    case status of
+        Hidden ->
+            "doc/card.png"
+
+        _ ->
+            (id |> fromInt)
+                |> String.append "https://picsum.photos/200/300?image="
+
+renderImage : Image -> Element msg
+renderImage image =
+    { src = image |> imageUrl
+    , description = image.description
+    }
+        |> Element.image [ width (px 100) ]
+
+```
+
+- Create a new function which will return the `Element.image` attributes so we can style differently whenever the image is `Found`:
+```elm
+imageStyle : Image -> List (Attribute msg)
+```

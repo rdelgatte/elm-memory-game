@@ -1,14 +1,13 @@
 module Main exposing (Model, Msg(..), initialModel, main, update, view)
 
 import Browser
-import Element exposing (Element, centerX, padding, px, spacing, text, width)
+import Element exposing (Attribute, Element, centerX, padding, px, spacing, text, width)
 import Element.Input as Input
 import Html exposing (Html)
-import Image exposing (Image, Status(..), buildImage)
+import Image exposing (Image, Status(..), buildImage, refreshImagesStatus, renderImage, visible)
 import Random
 import Random.List
 import Set
-import String exposing (fromInt)
 
 
 
@@ -92,11 +91,7 @@ updateImagesOnClick maybeImages clickedIndex =
                                     visible image
                         )
                 )
-
-
-visible : Image -> Image
-visible image =
-    { image | status = Visible }
+                |> refreshImagesStatus
 
 
 generateValues : Model -> Cmd Msg
@@ -114,25 +109,6 @@ generate min max length =
 
 
 -- VIEW
-
-
-renderImage : Image -> Element Msg
-renderImage { id, description, status } =
-    let
-        imageUrl : String
-        imageUrl =
-            case status of
-                Hidden ->
-                    "doc/card.png"
-
-                _ ->
-                    (id |> fromInt)
-                        |> String.append "https://picsum.photos/200/300?image="
-    in
-    { src = imageUrl
-    , description = description
-    }
-        |> Element.image [ width (px 100) ]
 
 
 renderClickableImage : Image -> Int -> Element Msg
