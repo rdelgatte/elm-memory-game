@@ -318,8 +318,6 @@ Once it is done, you can go to the next step: `git checkout -f step-11`
 
 In this step, we will have to flag our images as `Found` whenever we discover a card which has is associated image visible as well.
 
-When clicking an `Image` it becomes `Visible`.
-
 - Create a function which takes the `Maybe (List Image)` and returns an up-to-date `Maybe (List Image)`:
 The signature could be something like:
 ```elm
@@ -357,4 +355,118 @@ renderImage image =
 - Create a new function which will return the `Element.image` attributes so we can style differently whenever the image is `Found`:
 ```elm
 imageStyle : Image -> List (Attribute msg)
+```
+
+Once it is done, you can go to the next step: `git checkout -f step-12`
+
+## Final step
+
+Now we can identify whether the images are found which is nice but we also need to reverse the cards when two were played but were not the same. 
+
+To do so, we can do as before using function `refreshImageStatus` but we have to update it so:
+- Whenever I click a new `Image` and I already have two images as `Visible`, I should force these two images to be `Hidden`. 
+
+I can identify which image has been clicked passing the index so we need to change the signature of the function as below:
+```elm
+refreshImagesStatus : Int -> Maybe (List Image) -> Maybe (List Image)
+```
+
+From the list of provided images, I can:
+    - Count all `Visible` images 
+    - If I have more than 2 `Visible` images, I should iterate over images and set `Visible`them to `Hidden` except for the provided index
+    - Else, we return images as they are
+We can do that in a separate function whose signature could be:
+```elm
+hideImages : Int -> List Image -> List Image
+hideImages index images = ...
+```
+This function would return the list of `Image` after updating their status to `Hidden` when necessary.
+
+- Once developing this function, we need to call it before updating images status to `Found` when necessary
+
+You should get the expected behaviour once doing that:
+
+![step-12](doc/step-12.png)
+
+--- 
+**Few tips**
+- I updated some unit tests in `ImageTest.elm` so you can run them to help you building this step
+- Here are some use cases:
+
+When clicking an image which its duplicate is already `Visible`:
+
+```elm
+original : List Image
+original =
+    [ Image 1 "1" Visible
+    , Image 3 "3" Hidden
+    , Image 2 "2" Hidden
+    , Image 2 "2" Hidden
+    , Image 1 "1" Visible
+    , Image 3 "3" Hidden
+    ]
+expected : List Image
+expected =
+    [ Image 1 "1" Found
+    , Image 3 "3" Hidden
+    , Image 2 "2" Hidden
+    , Image 2 "2" Hidden
+    , Image 1 "1" Found
+    , Image 3 "3" Hidden
+    ]
+```
+
+When clicking an image and none other image is `Visible`:
+
+```elm
+original : List Image
+original =
+    [ Image 1 "1" Hidden
+    , Image 3 "3" Hidden
+    , Image 2 "2" Found
+    , Image 2 "2" Found
+    , Image 1 "1" Visible
+    , Image 3 "3" Hidden
+    ]
+expected : List Image
+expected = original
+```
+
+When clicking an image and another image is `Visible` but without the same id:
+    
+```elm
+original : List Image
+original =
+    [ Image 1 "1" Hidden
+    , Image 3 "3" Hidden
+    , Image 2 "2" Found
+    , Image 2 "2" Found
+    , Image 1 "1" Visible
+    , Image 3 "3" Visible
+    ]
+expected : List Image
+expected = original
+```
+
+When clicking over image 2 (index = 2) and two other images are already `Visible` but none of them share the same id as the one being clicked:
+
+```elm
+original : List Image
+original =
+    [ Image 1 "1" Hidden
+    , Image 3 "3" Hidden
+    , Image 2 "2" Visible
+    , Image 2 "2" Hidden
+    , Image 1 "1" Visible
+    , Image 3 "3" Visible
+    ]
+expected : List Image
+expected = 
+    [ Image 1 "1" Hidden
+    , Image 3 "3" Hidden
+    , Image 2 "2" Visible
+    , Image 2 "2" Hidden
+    , Image 1 "1" Hidden
+    , Image 3 "3" Hidden
+    ]
 ```
