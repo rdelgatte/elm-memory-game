@@ -91,7 +91,7 @@ updateImagesOnClick maybeImages clickedIndex =
                                     visible image
                         )
                 )
-                |> refreshImagesStatus
+                |> refreshImagesStatus clickedIndex
 
 
 generateValues : Model -> Cmd Msg

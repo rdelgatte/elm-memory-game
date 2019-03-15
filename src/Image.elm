@@ -40,6 +40,11 @@ found image =
     Found |> imageStatus image
 
 
+hidden : Image -> Image
+hidden image =
+    Hidden |> imageStatus image
+
+
 imageStatus : Image -> Status -> Image
 imageStatus image newStatus =
     { image | status = newStatus }
@@ -94,20 +99,49 @@ isImageFound images image =
     size > 1
 
 
-refreshImagesStatus : Maybe (List Image) -> Maybe (List Image)
-refreshImagesStatus maybeImages =
+reverseImages : Int -> List Image -> List Image
+reverseImages clicked images =
+    let
+        visibleImagesSize =
+            images
+                |> List.filter (\img -> img.status == Visible)
+                |> List.length
+    in
+    case visibleImagesSize > 2 of
+        True ->
+            images
+                |> List.indexedMap
+                    (\index image ->
+                        case image.status == Visible && index /= clicked of
+                            True ->
+                                image |> hidden
+
+                            False ->
+                                image
+                    )
+
+        False ->
+            images
+
+
+refreshImagesStatus : Int -> Maybe (List Image) -> Maybe (List Image)
+refreshImagesStatus index maybeImages =
     case maybeImages of
         Nothing ->
             Nothing
 
         Just images ->
             let
+                reversedImages : List Image
+                reversedImages =
+                    images |> reverseImages index
+
                 updated : List Image
                 updated =
-                    images
+                    reversedImages
                         |> List.map
                             (\image ->
-                                case image |> isImageFound images of
+                                case image |> isImageFound reversedImages of
                                     True ->
                                         image |> found
 
